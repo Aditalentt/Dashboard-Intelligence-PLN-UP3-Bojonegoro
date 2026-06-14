@@ -36,13 +36,13 @@ df['UNITUP'] = df['UNITUP'].astype(str)
 
 unit_mapping = {
     "51801": "Bogota",
-    "51802": "Taman",
-    "51803": "Ngagel",
-    "51804": "Rungkut",
-    "51805": "Darmo Permai",
-    "51806": "Dukuh Kupang",
-    "51807": "Ketintang",
-    "51808": "Wonokromo"
+    "51802": "Tuban",
+    "51803": "Lamongan",
+    "51804": "Babat",
+    "51805": "Padangan",
+    "51806": "Brondong",
+    "51807": "Jatirogo",
+    "51808": "Sumberrejo"
 }
 
 options = [f"{kode} - {nama}" for kode, nama in unit_mapping.items()]
