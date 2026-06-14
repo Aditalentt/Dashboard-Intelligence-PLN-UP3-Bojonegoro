@@ -1,7 +1,7 @@
 import pandas as pd
 
 def load_data():
-    df = pd.read_excel('sorek cuy.xlsx')
+    df = pd.read_excel('sorek baru.xlsx')
 
     # feature dasar
     df['TOTAL_KWH'] = df['KWHLWBP'] + df['KWHWBP'] + df['BLOK3']

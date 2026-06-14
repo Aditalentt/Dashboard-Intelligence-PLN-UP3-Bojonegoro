@@ -34,8 +34,23 @@ df = load_main_data()
 # FILTER
 df['UNITUP'] = df['UNITUP'].astype(str)
 
-unit = st.selectbox("Pilih UNITUP", df['UNITUP'].unique())
-filtered = df[df['UNITUP'] == unit]
+unit_mapping = {
+    "51801": "Bogota",
+    "51802": "Taman",
+    "51803": "Ngagel",
+    "51804": "Rungkut",
+    "51805": "Darmo Permai",
+    "51806": "Dukuh Kupang",
+    "51807": "Ketintang",
+    "51808": "Wonokromo"
+}
+
+options = [f"{kode} - {nama}" for kode, nama in unit_mapping.items()]
+
+selected = st.selectbox("Pilih UNITUP", options)
+
+unit = selected.split(" - ")[0]
+filtered = df[df['UNITUP'].astype(str) == unit]
 
 if filtered.empty:
     st.error("Data kosong")
