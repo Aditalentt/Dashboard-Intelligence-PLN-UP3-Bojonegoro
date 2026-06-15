@@ -155,12 +155,6 @@ def tokenize(text):
 
 def train_nlp_model(df_keluhan):
 
-    print("=== DEBUG NLP ===")
-    print("Jumlah data:", len(df_keluhan))
-
-    if len(df_keluhan) == 0:
-        raise Exception("DATAFRAME KOSONG")
-
     df_nlp = df_keluhan.copy()
 
     df_nlp['clean_text'] = df_nlp['KELUHAN'].apply(clean_text)

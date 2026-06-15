@@ -203,8 +203,6 @@ def show_nlp(df_keluhan, unit):
 
     df_keluhan['UNITUP'] = df_keluhan['UNITUP'].astype(str).str.strip()
     unit = str(unit).strip()
-    print("UNIT =", repr(unit))
-    print(df_keluhan['UNITUP'].unique())
     df_k = df_keluhan[df_keluhan['UNITUP'] == unit].copy()
 
     # Distribusi Kategori
