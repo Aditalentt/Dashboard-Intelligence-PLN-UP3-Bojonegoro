@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 def load_data():
     df = pd.read_excel('sorek baru.xlsx')
@@ -76,7 +77,7 @@ def segment_distribution(df):
 
     for seg in df['SEGMENT'].unique():
         seg_df = df[df['SEGMENT'] == seg]
-        summary = (seg_df.groupby('TARIP').agg(Total_KWH=('TOTAL_KWH','sum'), Total_Tagihan=('TOTAL_RP','sum')).reset_index())
+        summary = (seg_df.groupby('TARIP').agg(Jumlah_Pelanggan = ('NAMA', 'count'), Total_KWH=('TOTAL_KWH','sum'), Total_Tagihan=('TOTAL_RP','sum')).reset_index())
         total_tagihan = summary['Total_Tagihan'].sum()
 
         summary['Kontribusi_Tagihan (%)'] = (summary['Total_Tagihan']/ total_tagihan * 100).round(2)
@@ -153,6 +154,12 @@ def tokenize(text):
     return text.split()
 
 def train_nlp_model(df_keluhan):
+
+    print("=== DEBUG NLP ===")
+    print("Jumlah data:", len(df_keluhan))
+
+    if len(df_keluhan) == 0:
+        raise Exception("DATAFRAME KOSONG")
 
     df_nlp = df_keluhan.copy()
 

@@ -9,7 +9,6 @@ st.set_page_config(layout="wide")
 
 st.title("Dashboard Intelligence PLN UP3 Bojonegoro")
 
-
 # LOAD DATA
 @st.cache_data
 def load_main_data():
@@ -117,7 +116,7 @@ def show_dashboard(filtered):
     st.bar_chart(segment_revenue)
 
     # Segmentation Validation
-    dist = segment_distribution(df)
+    dist = segment_distribution(filtered)
     for seg, val in dist.items():
         with st.expander(f"Segment: {seg}"):
             st.dataframe(val, width = 'stretch')
@@ -199,10 +198,13 @@ def show_modeling(df, unit):
 
 # Tab 3
 def show_nlp(df_keluhan, unit):
+    
     st.subheader('Analisis Keluhan Pelanggan')
 
     df_keluhan['UNITUP'] = df_keluhan['UNITUP'].astype(str).str.strip()
-
+    unit = str(unit).strip()
+    print("UNIT =", repr(unit))
+    print(df_keluhan['UNITUP'].unique())
     df_k = df_keluhan[df_keluhan['UNITUP'] == unit].copy()
 
     # Distribusi Kategori
@@ -212,7 +214,7 @@ def show_nlp(df_keluhan, unit):
 
     # Keluhan vs Segmentasi
     st.subheader('Keluhan vs Segmentasi')
-    cross = pd.crosstab(df_k['SEGMENT'], df_keluhan['LABEL'])
+    cross = pd.crosstab(df_k['SEGMENT'], df_k['LABEL'])
     st.dataframe(cross)
 
     # Sampel Teks
@@ -253,6 +255,10 @@ def show_nlp(df_keluhan, unit):
     st.metric('Accuracy', f'{accuracy:.2%}')
     report_df = pd.DataFrame(report).transpose()
     st.dataframe(report_df)
+
+    st.write(unit)
+    st.write(type(unit))
+    st.write(len(df_k))
 
 
 # Tab Control
