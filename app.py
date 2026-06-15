@@ -254,11 +254,6 @@ def show_nlp(df_keluhan, unit):
     report_df = pd.DataFrame(report).transpose()
     st.dataframe(report_df)
 
-    st.write(unit)
-    st.write(type(unit))
-    st.write(len(df_k))
-
-
 # Tab Control
 tab1, tab2, tab3 = st.tabs(['Dashboard', 'Modelling', 'NLP'])
 
