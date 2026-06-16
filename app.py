@@ -142,7 +142,7 @@ def show_dashboard(filtered):
 
     # Top Contributor
     top_real = filtered.sort_values('TOTAL_RP', ascending = False).head(15)
-    st.subheader('Top Real Revenue Driver')
+    st.subheader('Top Real Bill Driver')
     st.dataframe(top_real[['NAMA', 'TOTAL_RP', 'TOTAL_KWH']])
 
     # Rekomendasi Aksi
