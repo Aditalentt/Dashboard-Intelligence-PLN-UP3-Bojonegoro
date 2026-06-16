@@ -133,7 +133,6 @@ def detect_anomaly(df):
     q3 = df['TOTAL_RP'].quantile(0.75)
     iqr = q3 - q1
 
-    df['ANOMALI_TAGIHAN'] = ((df['TOTAL_RP'] < q1 - 1.5*iqr) | (df['TOTAL_RP'] > q3 + 1.5*iqr))
     df['ANOMALI_JAM'] = (df['JAMNYALA'] > 720)
     return df
 

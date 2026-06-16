@@ -188,10 +188,6 @@ def show_modeling(df, unit):
         st.plotly_chart(fig, use_container_width=True)
 
         # Anomaly Detection
-        anomali_tagihan = (filtered[filtered['ANOMALI_TAGIHAN']][['NAMA', 'TARIP', 'DAYA', 'TOTAL_KWH', 'TOTAL_RP']].sort_values('TOTAL_RP', ascending=False))
-        st.subheader('Anomali Tagihan')
-        st.dataframe(anomali_tagihan, width = 'stretch')
-
         anomali_jam = (filtered[filtered['ANOMALI_JAM']][['NAMA', 'TARIP', 'DAYA', 'JAMNYALA', 'TOTAL_KWH']].sort_values('JAMNYALA', ascending=True))
         st.subheader('Anomali Jam Nyala')
         st.dataframe(anomali_jam, width = 'stretch')
