@@ -138,17 +138,6 @@ def show_dashboard(filtered):
     segment_revenue = filtered.groupby('SEGMENT')['TOTAL_RP'].sum()
     st.bar_chart(segment_revenue)
 
-    # Classification
-    (clf, accuracy, precision, recall, f1, cm, importance, model) = train_classifier(filtered)
-    c1,c2,c3,c4 = st.columns(4)
-    c1.metric("Accuracy",f"{accuracy:.4f}")
-    c2.metric("Precision",f"{precision:.4f}")
-    c3.metric("Recall",f"{recall:.4f}")
-    c4.metric("F1 Score",f"{f1:.4f}")
-
-    fig, px.imshow(cm, text_auto=True, x=model.classes_,y=model.classes_, label=dict(x='Prediksi', y = 'Aktual'))
-    st.plotly_chart(fig)
-
     # Segmentation Validation
     dist = segment_distribution(filtered)
     for seg, val in dist.items():
@@ -221,6 +210,17 @@ def show_modeling(df, unit):
         fig.update_layout(xaxis_title = 'Feature', yaxis_title = 'Importance', showlegend = False)
         fig.update_traces(textposition = 'outside')
         st.plotly_chart(fig, use_container_width=True)
+
+        # Classification
+        (clf, accuracy, precision, recall, f1, cm, importance) = train_classifier(filtered)
+        c1,c2,c3,c4 = st.columns(4)
+        c1.metric("Accuracy",f"{accuracy:.4f}")
+        c2.metric("Precision",f"{precision:.4f}")
+        c3.metric("Recall",f"{recall:.4f}")
+        c4.metric("F1 Score",f"{f1:.4f}")
+
+        fig, px.imshow(cm, text_auto=True, x=clf.classes_,y=clf.classes_, label=dict(x='Prediksi', y = 'Aktual'))
+        st.plotly_chart(fig)
 
         # Anomaly Detection
         anomali_jam = (filtered[filtered['ANOMALI_JAM']][['NAMA', 'UNITUP', 'TARIP', 'DAYA', 'JAMNYALA', 'TOTAL_KWH']].sort_values('JAMNYALA', ascending=True))
