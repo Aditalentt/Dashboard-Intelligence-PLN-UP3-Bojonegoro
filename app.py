@@ -226,7 +226,7 @@ def show_modeling(df, unit):
         c2.metric('Anomali', f'{anomali:,}'.replace(',','.'))
         c3.metric('% Anomali', f'{persen:.2f}%')
 
-        fig = px.scatter(anomali_konsumsi, x = 'TOTAL_KWH', y = 'TOTAL_RP', color = 'STATUS', color_discrete_map = {'Normal': '#2ECC71', 'Anomali': '#E74C3C'}, hover_data = ['NAMA', 'UNITUP', 'TARIP'])
+        fig = px.scatter(anomali_konsumsi, x = 'TOTAL_KWH', y = 'DAYA', color = 'STATUS', color_discrete_map = {'Normal': '#2ECC71', 'Anomali': '#E74C3C'}, hover_data = ['NAMA', 'UNITUP', 'TARIP'])
         st.plotly_chart(fig, width = 'stretch')
 
         st.subheader('Anomali Konsumsi')
