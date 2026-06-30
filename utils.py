@@ -87,7 +87,8 @@ def segment_distribution(df):
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
@@ -122,18 +123,32 @@ def train_model(df):
 
     mae = mean_absolute_error(y_test, y_pred)
     mape = np.mean(np.abs((y_test - y_pred) / y_test.replace(0, 1))) * 100
+    r2 = r2_score(y_test, y_pred)
 
     df_model['PRED_RP'] = model.predict(X)
 
-    return df_model, model, mae, mape
+    return df_model, model, mae, mape, r2
 
 # Anomaly Detection
-def detect_anomaly(df):
-    q1 = df['TOTAL_RP'].quantile(0.25)
-    q3 = df['TOTAL_RP'].quantile(0.75)
-    iqr = q3 - q1
-
+def active_hour_anomaly(df):
     df['ANOMALI_JAM'] = (df['JAMNYALA'] > 720)
+    return df
+
+from sklearn.ensemble import IsolationForest
+
+def consumption_anomaly(df):
+    df = df.copy()
+
+    le = LabelEncoder()
+    df['TARIP_ENC'] = le.fit_transform(df['TARIP'])
+    features = ['TOTAL_KWH', 'DAYA', 'JAMNYALA', 'TARIP_ENC']
+    df = df.dropna(subset=features)
+    X = df[features]
+
+    model = IsolationForest(n_estimators = 100, contamination = 0.02, random_state = 42)
+    df['ANOMALI_KONSUMSI'] = model.fit_predict(X)
+    df['STATUS'] = df['ANOMALI_KONSUMSI'].map({1: 'Normal', -1:'Anomali'})
+
     return df
 
 # Preprocessing & Tokenizing

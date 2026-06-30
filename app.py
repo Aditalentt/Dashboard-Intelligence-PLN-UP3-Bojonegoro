@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-from utils import load_data, aggregate_unit, segment, add_segmentation, apply_segmentation, segment_action, get_segment_comparison, segment_distribution, apply_action, train_model, detect_anomaly, train_nlp_model, clean_text, tokenize
+from utils import load_data, aggregate_unit, segment, add_segmentation, apply_segmentation, segment_action, get_segment_comparison, segment_distribution, apply_action, train_model, active_hour_anomaly, consumption_anomaly, train_nlp_model, clean_text, tokenize
 
 st.set_page_config(layout="wide")
 
@@ -16,7 +16,8 @@ def load_main_data():
     df = add_segmentation(df)
     df = apply_segmentation(df)
     df = apply_action(df)
-    df = detect_anomaly(df)
+    df = active_hour_anomaly(df)
+    df = consumption_anomaly(df)
     return df
 
 @st.cache_data
@@ -75,6 +76,16 @@ def show_dashboard(filtered):
     tarif_summary['Kontribusi (%)'] = (tarif_summary['Total_KWH'] / total_kwh * 100).round(2)
     st.dataframe(tarif_summary, width='stretch')
 
+    # Total Pelanggan Setiap Tarif
+    st.subheader('Total Pelanggan per Tarif')
+    tarif_counts = (filtered['TARIP'].value_counts().reset_index())
+    tarif_counts.columns = ['TARIP', 'TOTAL_PELANGGAN']
+    tarif_counts = tarif_counts.sort_values(by = 'TOTAL_PELANGGAN', ascending=True)
+    fig = px.bar(tarif_counts, x = 'TOTAL_PELANGGAN', y = 'TARIP', orientation = 'h', text = 'TOTAL_PELANGGAN', color = 'TOTAL_PELANGGAN', color_continuous_scale='Blues')
+    fig.update_traces(texttemplate = '%{text:,.0f}', textposition='outside')
+    fig.update_layout(xaxis_title = 'Total Pelanggan', yaxis_title = 'Tarif', coloraxis_showscale = False, height = 420, margin = dict(l=10, r=10, t=30, b=10))
+    st.plotly_chart(fig, width='stretch')
+
     # Bar Chart per Tarif
     tarif_chart = (filtered.groupby('TARIP')['TOTAL_KWH'].sum().reset_index())
     tarif_chart = tarif_chart.sort_values('TOTAL_KWH', ascending = False)
@@ -103,14 +114,26 @@ def show_dashboard(filtered):
     fig.update_layout(xaxis_title = 'Tarif', yaxis_title = 'Kontribusi Tagihan (%)', showlegend = False)
     st.plotly_chart(fig, use_container_width=True)
 
-    # Segmentasi Pelanggan
-    st.subheader('Distribusi Segmentasi Pelanggan')
-    segment_counts = filtered['SEGMENT'].value_counts().reset_index()
-    segment_counts.columns = ['SEGMENT', 'COUNT']
-    fig = px.pie(segment_counts, names = 'SEGMENT', values = 'COUNT')
-    fig.update_traces(textinfo = 'percent+label')
-    st.plotly_chart(fig)
+    # Distribusi Segmentasi Pelanggan
+    st.subheader("Distribusi Segmentasi Pelanggan")
 
+    segment_counts = (filtered["SEGMENT"].value_counts().reset_index())
+    segment_counts.columns = ["SEGMENT", "COUNT"]
+    segment_counts = segment_counts.sort_values(by="COUNT", ascending=False)
+
+
+    colors = [
+        "#E74C3C",  # merah
+        "#F39C12",  # oranye
+        "#F1C40F",  # kuning
+        "#2ECC71",  # hijau
+    ]
+
+    fig = px.pie(segment_counts, names="SEGMENT", values="COUNT")
+
+    fig.update_traces(textinfo="percent+label", marker=dict(colors=colors), sort=False)
+
+    st.plotly_chart(fig, use_container_width=True)
     st.subheader('Pendapatan tagihan per Segmen')
     segment_revenue = filtered.groupby('SEGMENT')['TOTAL_RP'].sum()
     st.bar_chart(segment_revenue)
@@ -154,12 +177,13 @@ def show_modeling(df, unit):
     st.subheader('Modelling')
     
     if st.button('Run Model'):
-        df_model, model, mae, mape = run_model(df)
+        df_model, model, mae, mape, r2 = run_model(df)
 
         # Evaluasi Model
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         col1.metric('MAE', f'{mae:,.0f}'.replace(',','.'))
         col2.metric('MAPE (%)', f'{mape:.2f}%')
+        col3.metric('R2', f'{r2:.4f}')
 
         # Scatter plot
         fig = px.scatter(df_model, x = 'TOTAL_RP', y = 'PRED_RP')
@@ -191,6 +215,22 @@ def show_modeling(df, unit):
         anomali_jam = (filtered[filtered['ANOMALI_JAM']][['NAMA', 'UNITUP', 'TARIP', 'DAYA', 'JAMNYALA', 'TOTAL_KWH']].sort_values('JAMNYALA', ascending=True))
         st.subheader('Anomali Jam Nyala')
         st.dataframe(anomali_jam, width = 'stretch')
+
+        anomali_konsumsi = consumption_anomaly(filtered)
+        normal = (anomali_konsumsi['STATUS'] == 'Normal').sum()
+        anomali = (anomali_konsumsi['STATUS'] == 'Anomali').sum()
+        persen = anomali/len(anomali_konsumsi)*100
+        c1, c2, c3 = st.columns(3)
+
+        c1.metric('Normal', f'{normal:,}'.replace(',','.'))
+        c2.metric('Anomali', f'{anomali:,}'.replace(',','.'))
+        c3.metric('% Anomali', f'{persen:.2f}%')
+
+        fig = px.scatter(anomali_konsumsi, x = 'TOTAL_KWH', y = 'TOTAL_RP', color = 'STATUS', color_discrete_map = {'Normal': '#2ECC71', 'Anomali': '#E74C3C'}, hover_data = ['NAMA', 'UNITUP', 'TARIP'])
+        st.plotly_chart(fig, width = 'stretch')
+
+        st.subheader('Anomali Konsumsi')
+        st.dataframe(anomali_konsumsi[anomali_konsumsi['STATUS'] == 'Anomali'][['NAMA', 'UNITUP', 'TARIP', 'DAYA', 'TOTAL_KWH', 'TOTAL_RP']])
 
 # Tab 3
 def show_nlp(df_keluhan, unit):
