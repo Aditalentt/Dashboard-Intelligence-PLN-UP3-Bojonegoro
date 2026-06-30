@@ -219,7 +219,7 @@ def show_modeling(df, unit):
         c3.metric("Recall",f"{recall:.4f}")
         c4.metric("F1 Score",f"{f1:.4f}")
 
-        fig, px.imshow(cm, text_auto=True, x=clf.classes_,y=clf.classes_, label=dict(x='Prediksi', y = 'Aktual'))
+        fig = px.imshow(cm, text_auto=True, x=clf.classes_,y=clf.classes_, labels=dict(x='Prediksi', y = 'Aktual'))
         st.plotly_chart(fig)
 
         # Anomaly Detection
