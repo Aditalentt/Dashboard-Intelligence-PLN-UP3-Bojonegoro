@@ -212,7 +212,7 @@ def show_modeling(df, unit):
         st.plotly_chart(fig, use_container_width=True)
 
         # Classification
-        (clf, accuracy, precision, recall, f1, cm, importance) = train_classifier(filtered)
+        (clf_df, clf, accuracy, precision, recall, f1, cm, importance) = train_classifier(filtered)
         c1,c2,c3,c4 = st.columns(4)
         c1.metric("Accuracy",f"{accuracy:.4f}")
         c2.metric("Precision",f"{precision:.4f}")
@@ -221,6 +221,9 @@ def show_modeling(df, unit):
 
         fig = px.imshow(cm, text_auto=True, x=clf.classes_,y=clf.classes_, labels=dict(x='Prediksi', y = 'Aktual'))
         st.plotly_chart(fig)
+
+        st.subheader('Hasil Klasifikasi Pelanggan')
+        st.dataframe(clf_df[['NAMA', 'UNITUP', 'SEGMENT', 'PREDICTED_SEGMENT', 'MATCH']])
 
         # Anomaly Detection
         anomali_jam = (filtered[filtered['ANOMALI_JAM']][['NAMA', 'UNITUP', 'TARIP', 'DAYA', 'JAMNYALA', 'TOTAL_KWH']].sort_values('JAMNYALA', ascending=True))
