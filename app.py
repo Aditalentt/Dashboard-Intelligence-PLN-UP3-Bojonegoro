@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-from utils import load_data, aggregate_unit, segment, add_segmentation, apply_segmentation, segment_action, get_segment_comparison, segment_distribution, apply_action, train_model, active_hour_anomaly, consumption_anomaly, train_nlp_model, clean_text, tokenize
+from utils import load_data, aggregate_unit, segment, add_segmentation, apply_segmentation, segment_action, get_segment_comparison, segment_distribution, apply_action, train_model, train_classifier, active_hour_anomaly, consumption_anomaly, train_nlp_model, clean_text, tokenize
 
 st.set_page_config(layout="wide")
 
@@ -137,6 +137,17 @@ def show_dashboard(filtered):
     st.subheader('Pendapatan tagihan per Segmen')
     segment_revenue = filtered.groupby('SEGMENT')['TOTAL_RP'].sum()
     st.bar_chart(segment_revenue)
+
+    # Classification
+    (clf, accuracy, precision, recall, f1, cm, importance, model) = train_classifier(filtered)
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("Accuracy",f"{accuracy:.4f}")
+    c2.metric("Precision",f"{precision:.4f}")
+    c3.metric("Recall",f"{recall:.4f}")
+    c4.metric("F1 Score",f"{f1:.4f}")
+
+    fig, px.imshow(cm, text_auto=True, x=model.classes_,y=model.classes_, label=dict(x='Prediksi', y = 'Aktual'))
+    st.plotly_chart(fig)
 
     # Segmentation Validation
     dist = segment_distribution(filtered)

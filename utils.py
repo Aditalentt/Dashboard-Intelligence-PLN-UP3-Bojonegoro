@@ -92,6 +92,41 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
+# Predictive Segmentation
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, confusion_matrix) 
+
+def train_classifier(df):
+
+    df = df.copy()
+
+    le = LabelEncoder()
+    df["TARIP_ENC"] = le.fit_transform(df["TARIP"])
+
+    features = ["TOTAL_KWH", "DAYA", "JAMNYALA", "TARIP_ENC"]
+
+    X = df[features]
+    y = df["SEGMENT"]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+    model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
+
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average="weighted")
+    recall = recall_score(y_test, y_pred, average="weighted")
+    f1 = f1_score(y_test, y_pred, average="weighted")
+
+    cm = confusion_matrix(y_test, y_pred)
+
+    importance = pd.DataFrame({"Feature":features, "Importance":model.feature_importances_}).sort_values("Importance", ascending=False)
+
+    return (model, accuracy, precision, recall, f1, cm, importance)
+
 # Predictive Model
 def train_model(df):
 
