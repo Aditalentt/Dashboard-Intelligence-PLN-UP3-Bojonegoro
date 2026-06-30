@@ -122,10 +122,9 @@ def train_classifier(df):
     f1 = f1_score(y_test, y_pred, average="weighted")
 
     cm = confusion_matrix(y_test, y_pred)
-    importance = pd.DataFrame({"Feature":features, "Importance":clf.feature_importances_}).sort_values("Importance", ascending=False)
-    df["PREDICTED_SEGMENT"] = clf.predict(X)
 
-    df["MATCH"] = np.where(df["SEGMENT"] == df["PREDICTED_SEGMENT"], "Benar", "Salah")
+    importance = pd.DataFrame({"Feature":features, "Importance":clf.feature_importances_}).sort_values("Importance", ascending=False)
+
     return (clf, accuracy, precision, recall, f1, cm, importance)
 
 # Predictive Model
